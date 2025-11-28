@@ -2,5 +2,10 @@
 name = "arm-neural-graphics-lib"
 version = "0.1.0"
 edition = "2024"
+authors = ["Traverse Research <support@traverseresearch.nl>"]
+license = "MIT"
+homepage = "https://traverseresearch.nl"
+repository = "https://github.com/Traverse-Research/arm-neural-graphics-rs"
+description = "Precompiled library for ARM's neural graphics SDK"
 
 [dependencies]
