@@ -1,5 +1,5 @@
 [workspace]
 members = [
-  "api_gen",
+  "api_gen", "arm-neural-graphics-lib",
   "sys",
 ]
