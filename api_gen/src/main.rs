@@ -195,7 +195,6 @@ fn bindgen() -> (bindgen::Builder, Rc<RefCell<String>>) {
 
 fn generate_api_bindings(api_dir: &Path, vk_include_dir: &Path) {
     generate_api_root_bindings(api_dir);
-    generate_upscale_bindings(api_dir);
     generate_nss_bindings(api_dir);
     generate_vk_backend_bindings(api_dir, vk_include_dir);
 }
@@ -227,28 +226,6 @@ fn generate_api_root_bindings(api_dir: &Path) {
         .expect("Unable to generate bindings");
 
     let mut out = File::create("sys/src/api/bindings.rs").unwrap();
-    bindings
-        .write(Box::new(&mut out))
-        .expect("Couldn't write bindings!");
-    out.write_fmt(format_args!("{}", custom_code.borrow()))
-        .unwrap();
-}
-
-fn generate_upscale_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/ffx_upscale.h");
-
-    let (builder, custom_code) = bindgen_no_dynamic_library();
-    let bindings = builder
-        .header(wrapper.to_string_lossy())
-        .allowlist_type("[Ff]fx\\w+Upscale\\w*")
-        .allowlist_var("FFX_\\w+UPSCALE\\w*")
-        .bitfield_enum("FfxApiCreateContextUpscaleFlags")
-        .bitfield_enum("FfxApiDispatchFsrUpscaleFlags")
-        .bitfield_enum("FfxApiDispatchUpscaleAutoreactiveFlags")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let mut out = File::create("sys/src/api/upscale_bindings.rs").unwrap();
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
