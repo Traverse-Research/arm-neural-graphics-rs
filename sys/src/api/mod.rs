@@ -59,12 +59,6 @@ pub unsafe trait TaggedStructure: Sized {
 
 include!("bindings.rs");
 
-pub mod upscale {
-    use super::*;
-
-    include!("upscale_bindings.rs");
-}
-
 pub mod nss {
     use super::*;
 
