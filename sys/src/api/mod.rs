@@ -76,12 +76,12 @@ pub mod vk {
     use super::*;
 
     use ash::vk::{
-        Device as VkDevice, Fence as VkFence, Instance as VkInstance, PFN_vkAcquireNextImageKHR,
-        PFN_vkGetDeviceProcAddr, PFN_vkGetInstanceProcAddr, PFN_vkGetSwapchainImagesKHR,
-        PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT, PhysicalDevice as VkPhysicalDevice,
-        Queue as VkQueue, Result as VkResult, SwapchainKHR as VkSwapchainKHR,
+        AllocationCallbacks as VkAllocationCallbacks, Device as VkDevice, Fence as VkFence,
+        Instance as VkInstance, PFN_vkAcquireNextImageKHR, PFN_vkGetDeviceProcAddr,
+        PFN_vkGetInstanceProcAddr, PFN_vkGetSwapchainImagesKHR, PFN_vkQueuePresentKHR,
+        PFN_vkSetHdrMetadataEXT, PhysicalDevice as VkPhysicalDevice, Queue as VkQueue,
+        Result as VkResult, SwapchainKHR as VkSwapchainKHR,
     };
-    type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
     type VkSwapchainCreateInfoKHR = ash::vk::SwapchainCreateInfoKHR<'static>;
     type VkSubmitInfo = ash::vk::SubmitInfo<'static>;
 
