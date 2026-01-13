@@ -2,7 +2,7 @@
 	path = sys/Vulkan-Headers
 	url = https://github.com/KhronosGroup/Vulkan-Headers.git
 	update = none
-[submodule "Neural-graphics-sdk-for-game-engines"]
-	path = sys/Neural-graphics-sdk-for-game-engines
+[submodule "ngsdk"]
+	path = sys/ngsdk
 	url = https://github.com/arm/neural-graphics-sdk-for-game-engines
 	update = none

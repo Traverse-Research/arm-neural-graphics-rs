@@ -3,7 +3,7 @@ use std::{cell::RefCell, fs::File, io::Write, path::Path, rc::Rc};
 use heck::ToShoutySnekCase;
 
 fn main() {
-    let api_dir = Path::new("sys/Neural-graphics-sdk-for-game-engines/ffx-api/");
+    let api_dir = Path::new("sys/ngsdk/ffx-api/");
     let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
 
     generate_api_bindings(api_dir, vk_include_dir);
