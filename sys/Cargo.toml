@@ -14,7 +14,7 @@ rust-version = "1.74"
 
 [dependencies]
 libloading = "0.8"
-ash = { version = "0.38", optional = true, default-features = false }
+ash = { git = "https://github.com/Traverse-Research/ash", rev = "e589cf77", optional = true, default-features = false }
 
 [features]
 default = ["vulkan"]
