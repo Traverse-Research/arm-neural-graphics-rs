@@ -1,7 +1,7 @@
 [package]
 name = "arm-neural-graphics-lib"
 version = "0.1.0"
-edition = "2024"
+edition = "2021"
 authors = ["Traverse Research <support@traverseresearch.nl>"]
 license = "MIT"
 homepage = "https://traverseresearch.nl"
