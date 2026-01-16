@@ -32,8 +32,10 @@ impl CreateContextNssFlags {
     pub const READ_TENSORS_AS_IMAGES: CreateContextNssFlags = CreateContextNssFlags(32);
     #[doc = "< A bit indicating that the runtime should allow 16bit resources to be used."]
     pub const ALLOW_16BIT: CreateContextNssFlags = CreateContextNssFlags(64);
+    #[doc = "< A bit indicating that the padding is disabled in sdk."]
+    pub const DISABLE_PADDING: CreateContextNssFlags = CreateContextNssFlags(128);
     #[doc = "< A bit indicating that the runtime should check some API values and report issues."]
-    pub const ENABLE_DEBUG_CHECKING: CreateContextNssFlags = CreateContextNssFlags(128);
+    pub const ENABLE_DEBUG_CHECKING: CreateContextNssFlags = CreateContextNssFlags(256);
 }
 impl ::std::ops::BitOr<CreateContextNssFlags> for CreateContextNssFlags {
     type Output = Self;
