@@ -9,13 +9,11 @@ pub const CONFIGURE_GLOBALDEBUG_LEVEL_VERBOSE: u32 = 268435455;
 pub const CONFIGURE_DESC_TYPE_GLOBALDEBUG1: StructType_t = 1;
 pub const QUERY_DESC_TYPE_GET_VERSIONS: StructType_t = 4;
 pub const DESC_TYPE_OVERRIDE_VERSION: StructType_t = 5;
-pub const QUERY_DESC_TYPE_GET_PROVIDER_VERSION: StructType_t = 6;
 impl ReturnCodes {
     #[doc = "< The oparation was successful."]
     pub const OK: ReturnCodes = ReturnCodes(0);
     #[doc = "< An error occurred that is not further specified."]
     pub const ERROR: ReturnCodes = ReturnCodes(1);
-    #[doc = "< The structure type given was not recognized for the function or context with which it was used. This is likely a programming error."]
     pub const ERROR_UNKNOWN_DESCTYPE: ReturnCodes = ReturnCodes(2);
     #[doc = "< The underlying runtime (e.g. D3D12, Vulkan) or effect returned an error code."]
     pub const ERROR_RUNTIME_ERROR: ReturnCodes = ReturnCodes(3);
@@ -28,7 +26,7 @@ impl ReturnCodes {
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct ReturnCodes(pub ::std::os::raw::c_int);
+pub struct ReturnCodes(pub ::std::os::raw::c_uint);
 pub type Context = *mut ::std::os::raw::c_void;
 pub type StructType_t = u64;
 #[repr(C)]
@@ -50,8 +48,9 @@ impl MsgType {
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct MsgType(pub ::std::os::raw::c_int);
-pub type Message = ::std::option::Option<unsafe extern "C" fn(type_: u32, message: *const u16)>;
+pub struct MsgType(pub ::std::os::raw::c_uint);
+pub type Message =
+    ::std::option::Option<unsafe extern "C" fn(type_: u32, message: *const ::std::os::raw::c_char)>;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct ConfigureDescGlobalDebug1 {
@@ -81,15 +80,6 @@ pub struct OverrideVersion {
     #[doc = "< Id of version to use. Must be a value returned from a query in ffxQueryDescGetVersions.versionIds array."]
     pub versionId: u64,
 }
-#[repr(C)]
-#[derive(Debug, Copy, Clone)]
-pub struct QueryGetProviderVersion {
-    pub header: QueryDescHeader,
-    #[doc = "< Id of provider being used for queried context. 0 if invalid."]
-    pub versionId: u64,
-    #[doc = "< Version name for display. If nullptr, the query was invalid."]
-    pub versionName: *const ::std::os::raw::c_char,
-}
 pub type Alloc = ::std::option::Option<
     unsafe extern "C" fn(
         pUserData: *mut ::std::os::raw::c_void,
@@ -115,7 +105,8 @@ impl Default for AllocationCallbacks {
         }
     }
 }
-#[repr(i32)]
+pub type Float32x4x4 = [f32; 16usize];
+#[repr(u32)]
 #[non_exhaustive]
 #[doc = " An enumeration of surface formats. Needs to match enum FfxSurfaceFormat"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -136,66 +127,72 @@ pub enum SurfaceFormat {
     R32G32_FLOAT = 6,
     #[doc = "< 8 bit per channel, 1 channel float format"]
     R8_UINT = 7,
+    #[doc = "< 8 bit per channel, 1 channel float format"]
+    R8_SINT = 8,
     #[doc = "< 32 bit per channel, 1 channel float format"]
-    R32_UINT = 8,
+    R32_UINT = 9,
     #[doc = "<  8 bit per channel, 4 channel typeless format"]
-    R8G8B8A8_TYPELESS = 9,
+    R8G8B8A8_TYPELESS = 10,
     #[doc = "<  8 bit per channel, 4 channel unsigned normalized format"]
-    R8G8B8A8_UNORM = 10,
+    R8G8B8A8_UNORM = 11,
     #[doc = "<  8 bit per channel, 4 channel signed normalized format"]
-    R8G8B8A8_SNORM = 11,
+    R8G8B8A8_SNORM = 12,
     #[doc = "<  8 bit per channel, 4 channel srgb normalized"]
-    R8G8B8A8_SRGB = 12,
+    R8G8B8A8_SRGB = 13,
     #[doc = "<  8 bit per channel, 4 channel typeless format"]
-    B8G8R8A8_TYPELESS = 13,
+    B8G8R8A8_TYPELESS = 14,
     #[doc = "<  8 bit per channel, 4 channel unsigned normalized format"]
-    B8G8R8A8_UNORM = 14,
+    B8G8R8A8_UNORM = 15,
     #[doc = "<  8 bit per channel, 4 channel srgb normalized"]
-    B8G8R8A8_SRGB = 15,
+    B8G8R8A8_SRGB = 16,
     #[doc = "< 32 bit 3 channel float format"]
-    R11G11B10_FLOAT = 16,
+    R11G11B10_FLOAT = 17,
     #[doc = "< 10 bit per 3 channel, 2 bit for 1 channel normalized format"]
-    R10G10B10A2_UNORM = 17,
+    R10G10B10A2_UNORM = 18,
     #[doc = "< 16 bit per channel, 2 channel float format"]
-    R16G16_FLOAT = 18,
+    R16G16_FLOAT = 19,
     #[doc = "< 16 bit per channel, 2 channel unsigned int format"]
-    R16G16_UINT = 19,
+    R16G16_UINT = 20,
     #[doc = "< 16 bit per channel, 2 channel signed int format"]
-    R16G16_SINT = 20,
+    R16G16_SINT = 21,
     #[doc = "< 16 bit per channel, 1 channel float format"]
-    R16_FLOAT = 21,
+    R16_FLOAT = 22,
     #[doc = "< 16 bit per channel, 1 channel unsigned int format"]
-    R16_UINT = 22,
+    R16_UINT = 23,
     #[doc = "< 16 bit per channel, 1 channel unsigned normalized format"]
-    R16_UNORM = 23,
+    R16_UNORM = 24,
     #[doc = "< 16 bit per channel, 1 channel signed normalized format"]
-    R16_SNORM = 24,
+    R16_SNORM = 25,
     #[doc = "<  8 bit per channel, 1 channel unsigned normalized format"]
-    R8_UNORM = 25,
+    R8_UNORM = 26,
+    #[doc = "<  8 bit per channel, 1 channel signed normalized format"]
+    R8_SNORM = 27,
     #[doc = "<  8 bit per channel, 2 channel unsigned normalized format"]
-    R8G8_UNORM = 26,
+    R8G8_UNORM = 28,
     #[doc = "<  8 bit per channel, 2 channel unsigned integer format"]
-    R8G8_UINT = 27,
+    R8G8_UINT = 29,
+    #[doc = "<  8 bit per channel, 2 channel signed integer format"]
+    R8G8_SINT = 30,
     #[doc = "< 32 bit per channel, 1 channel float format"]
-    R32_FLOAT = 28,
+    R32_FLOAT = 31,
     #[doc = "<  9 bit per channel, 5 bit exponent format"]
-    R9G9B9E5_SHAREDEXP = 29,
+    R9G9B9E5_SHAREDEXP = 32,
     #[doc = "< 16 bit per channel, 4 channel typeless format"]
-    R16G16B16A16_TYPELESS = 30,
+    R16G16B16A16_TYPELESS = 33,
     #[doc = "< 32 bit per channel, 2 channel typeless format"]
-    R32G32_TYPELESS = 31,
+    R32G32_TYPELESS = 34,
     #[doc = "< 10 bit per 3 channel, 2 bit for 1 channel typeless format"]
-    R10G10B10A2_TYPELESS = 32,
+    R10G10B10A2_TYPELESS = 35,
     #[doc = "< 16 bit per channel, 2 channel typless format"]
-    R16G16_TYPELESS = 33,
+    R16G16_TYPELESS = 36,
     #[doc = "< 16 bit per channel, 1 channel typeless format"]
-    R16_TYPELESS = 34,
+    R16_TYPELESS = 37,
     #[doc = "<  8 bit per channel, 1 channel typeless format"]
-    R8_TYPELESS = 35,
+    R8_TYPELESS = 38,
     #[doc = "<  8 bit per channel, 2 channel typeless format"]
-    R8G8_TYPELESS = 36,
+    R8G8_TYPELESS = 39,
     #[doc = "< 32 bit per channel, 1 channel typeless format"]
-    R32_TYPELESS = 37,
+    R32_TYPELESS = 40,
 }
 impl ResourceUsage {
     #[doc = "< No usage flags indicate a resource is read only."]
@@ -212,6 +209,8 @@ impl ResourceUsage {
     pub const ARRAYVIEW: ResourceUsage = ResourceUsage(16);
     #[doc = "< Indicates a resource will be used as stencil target."]
     pub const STENCILTARGET: ResourceUsage = ResourceUsage(32);
+    #[doc = "< Indicates a resource will be used by data graph pipeline."]
+    pub const DATA_GRAPH: ResourceUsage = ResourceUsage(64);
 }
 impl ::std::ops::BitOr<ResourceUsage> for ResourceUsage {
     type Output = Self;
@@ -242,29 +241,38 @@ impl ::std::ops::BitAndAssign for ResourceUsage {
 #[repr(transparent)]
 #[doc = " An enumeration of resource usage."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct ResourceUsage(pub ::std::os::raw::c_int);
+pub struct ResourceUsage(pub ::std::os::raw::c_uint);
+#[doc = " An enumeration of resource usage."]
+pub use self::ResourceUsage as ResorceUsage;
 impl ResourceState {
     pub const COMMON: ResourceState = ResourceState(1);
-    #[doc = "< Indicates a resource is in the state to be used as UAV."]
-    pub const UNORDERED_ACCESS: ResourceState = ResourceState(2);
+    #[doc = "< Indicates a resource is in the state to be used as UAV in compute shaders."]
+    pub const COMPUTE_UAV: ResourceState = ResourceState(2);
+    #[doc = "< Indicates a resource is in the state to be used as UAV in pixel shaders."]
+    pub const PIXEL_UAV: ResourceState = ResourceState(4);
+    pub const UNORDERED_ACCESS: ResourceState = ResourceState(6);
     #[doc = "< Indicates a resource is in the state to be read by compute shaders."]
-    pub const COMPUTE_READ: ResourceState = ResourceState(4);
+    pub const COMPUTE_READ: ResourceState = ResourceState(8);
     #[doc = "< Indicates a resource is in the state to be read by pixel shaders."]
-    pub const PIXEL_READ: ResourceState = ResourceState(8);
-    #[doc = "< Indicates a resource is in the state to be read by pixel or compute shaders."]
-    pub const PIXEL_COMPUTE_READ: ResourceState = ResourceState(12);
+    pub const PIXEL_READ: ResourceState = ResourceState(16);
+    pub const PIXEL_COMPUTE_READ: ResourceState = ResourceState(24);
     #[doc = "< Indicates a resource is in the state to be used as source in a copy command."]
-    pub const COPY_SRC: ResourceState = ResourceState(16);
+    pub const COPY_SRC: ResourceState = ResourceState(32);
     #[doc = "< Indicates a resource is in the state to be used as destination in a copy command."]
-    pub const COPY_DEST: ResourceState = ResourceState(32);
-    #[doc = "< Indicates a resource is in generic (slow) read state."]
-    pub const GENERIC_READ: ResourceState = ResourceState(20);
+    pub const COPY_DEST: ResourceState = ResourceState(64);
+    pub const GENERIC_READ: ResourceState = ResourceState(40);
     #[doc = "< Indicates a resource is in the state to be used as an indirect command argument"]
-    pub const INDIRECT_ARGUMENT: ResourceState = ResourceState(64);
+    pub const INDIRECT_ARGUMENT: ResourceState = ResourceState(128);
     #[doc = "< Indicates a resource is in the state to be used to present to the swap chain"]
-    pub const PRESENT: ResourceState = ResourceState(128);
+    pub const PRESENT: ResourceState = ResourceState(256);
     #[doc = "< Indicates a resource is in the state to be used as render target"]
-    pub const RENDER_TARGET: ResourceState = ResourceState(256);
+    pub const RENDER_TARGET: ResourceState = ResourceState(512);
+    #[doc = "< Indicates a resource is in the state to be read by data graph"]
+    pub const DATA_GRAPH_READ: ResourceState = ResourceState(1024);
+    #[doc = "< Indicates a resource is in the state to be written by data graph"]
+    pub const DATA_GRAPH_WRITE: ResourceState = ResourceState(2048);
+    #[doc = "< Indicates a resource is in the state of Depth/Stencil read"]
+    pub const DEPTH_STENCIL_READ: ResourceState = ResourceState(4096);
 }
 impl ::std::ops::BitOr<ResourceState> for ResourceState {
     type Output = Self;
@@ -295,8 +303,8 @@ impl ::std::ops::BitAndAssign for ResourceState {
 #[repr(transparent)]
 #[doc = " An enumeration of resource states."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct ResourceState(pub ::std::os::raw::c_int);
-#[repr(i32)]
+pub struct ResourceState(pub ::std::os::raw::c_uint);
+#[repr(u32)]
 #[non_exhaustive]
 #[doc = " An enumeration of surface dimensions."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -343,8 +351,8 @@ impl ::std::ops::BitAndAssign for ResourceFlags {
 #[repr(transparent)]
 #[doc = " An enumeration of resource flags."]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct ResourceFlags(pub ::std::os::raw::c_int);
-#[repr(i32)]
+pub struct ResourceFlags(pub ::std::os::raw::c_uint);
+#[repr(u32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ResourceType {
@@ -358,14 +366,8 @@ pub enum ResourceType {
     TEXTURE_CUBE = 3,
     #[doc = "< The resource is a 3-dimensional texture."]
     TEXTURE3D = 4,
-}
-#[repr(i32)]
-#[non_exhaustive]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum BackbufferTransferFunction {
-    SRGB = 0,
-    PQ = 1,
-    SCRGB = 2,
+    #[doc = "< The resource is a tensor."]
+    TENSOR = 5,
 }
 #[doc = " A structure encapsulating a 2-dimensional point, using 32bit unsigned integers."]
 #[repr(C)]
@@ -375,6 +377,18 @@ pub struct Dimensions2D {
     pub width: u32,
     #[doc = "< The height of a 2-dimensional range."]
     pub height: u32,
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct TensorInfo {
+    #[doc = "< The width of a 2-dimensional range."]
+    pub width: u32,
+    #[doc = "< The height of a 2-dimensional range."]
+    pub height: u32,
+    #[doc = "< The channels of the tensor."]
+    pub channels: u32,
+    #[doc = "< The size of a tensor shape in bytes."]
+    pub shapeSize: u32,
 }
 #[doc = " A structure encapsulating a 2-dimensional set of floating point coordinates."]
 #[repr(C)]
@@ -411,11 +425,15 @@ pub struct ResourceDescription {
     pub flags: u32,
     #[doc = "< Resource usage flags."]
     pub usage: u32,
+    #[doc = "< Only used by tensor resource."]
+    pub batchSize: u32,
+    #[doc = "< Only used by tensor resource."]
+    pub shapeSize: u32,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union ResourceDescription__bindgen_ty_1 {
-    #[doc = "< The width of the texture resource."]
+    #[doc = "< The width of the texture/tensor resource."]
     pub width: u32,
     #[doc = "< The size of the buffer resource."]
     pub size: u32,
@@ -432,7 +450,7 @@ impl Default for ResourceDescription__bindgen_ty_1 {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union ResourceDescription__bindgen_ty_2 {
-    #[doc = "< The height of the texture resource."]
+    #[doc = "< The height of the texture/tensor resource."]
     pub height: u32,
     #[doc = "< The stride of the buffer resource."]
     pub stride: u32,
@@ -449,10 +467,12 @@ impl Default for ResourceDescription__bindgen_ty_2 {
 #[repr(C)]
 #[derive(Copy, Clone)]
 pub union ResourceDescription__bindgen_ty_3 {
-    #[doc = "< The depth of the texture resource."]
+    #[doc = "< The depth of the texture/tensor resource."]
     pub depth: u32,
     #[doc = "< The alignment of the buffer resource."]
     pub alignment: u32,
+    #[doc = "< The channel of tensor resource."]
+    pub channel: u32,
 }
 impl Default for ResourceDescription__bindgen_ty_3 {
     fn default() -> Self {
@@ -608,16 +628,6 @@ unsafe impl TaggedStructure for QueryDescGetVersions {
 
 unsafe impl TaggedStructure for OverrideVersion {
     const TAG: StructType_t = DESC_TYPE_OVERRIDE_VERSION;
-    fn header(&self) -> &Header {
-        &self.header
-    }
-    fn header_mut(&mut self) -> &mut Header {
-        &mut self.header
-    }
-}
-
-unsafe impl TaggedStructure for QueryGetProviderVersion {
-    const TAG: StructType_t = QUERY_DESC_TYPE_GET_PROVIDER_VERSION;
     fn header(&self) -> &Header {
         &self.header
     }

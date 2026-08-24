@@ -1,0 +1,11 @@
+[package]
+authors.workspace = true
+description = "Prebuilt ARM Neural Graphics libraries"
+edition.workspace = true
+homepage.workspace = true
+keywords.workspace = true
+license.workspace = true
+name = "arm-neural-graphics-bin"
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true

@@ -1,22 +1,21 @@
 [package]
-name = "fidelityfx-sys"
-version = "0.1.0+v1.1.4"
-authors = ["Traverse Research <support@traverseresearch.nl>"]
-edition = "2021"
-license = "MIT"
-homepage = "https://traverseresearch.nl"
-repository = "https://github.com/Traverse-Research/fidelityfx-rs"
-description = "Low-level sys bindings for AMD's FidelityFX SDK"
-include = ["src", "LICENSE"]
+authors.workspace = true
 categories = ["rendering", "graphics", "external-ffi-bindings"] # https://crates.io/category_slugs
-keywords = ["fidelityfx", "fsr", "upscaling", "vulkan", "d3d12"]
-rust-version = "1.74"
+description = "Low-level sys bindings for ARM's Neural Graphics SDK"
+edition.workspace = true
+homepage.workspace = true
+include = ["src", "LICENSE"]
+keywords.workspace = true
+license.workspace = true
+name = "arm-neural-graphics-sys"
+repository.workspace = true
+rust-version.workspace = true
+version.workspace = true
 
 [dependencies]
 libloading = "0.8"
 ash = { version = "0.38", optional = true, default-features = false }
 
 [features]
-default = ["vulkan", "dx12"]
+default = ["vulkan"]
 vulkan = ["dep:ash"]
-dx12 = []

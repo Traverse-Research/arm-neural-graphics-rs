@@ -10,7 +10,7 @@ pub const QUERY_DESC_TYPE_UPSCALE_GETJITTEROFFSET: StructType_t = 65541;
 pub const DISPATCH_DESC_TYPE_UPSCALE_GENERATEREACTIVEMASK: StructType_t = 65542;
 pub const CONFIGURE_DESC_TYPE_UPSCALE_KEYVALUE: StructType_t = 65543;
 pub const QUERY_DESC_TYPE_UPSCALE_GPU_MEMORY_USAGE: StructType_t = 65544;
-#[repr(i32)]
+#[repr(u32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum UpscaleQualityMode {
@@ -75,7 +75,7 @@ impl ::std::ops::BitAndAssign for CreateContextUpscaleFlags {
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct CreateContextUpscaleFlags(pub ::std::os::raw::c_int);
+pub struct CreateContextUpscaleFlags(pub ::std::os::raw::c_uint);
 impl DispatchFsrUpscaleFlags {
     #[doc = "< A bit indicating that the output resource will contain debug views with relevant information."]
     pub const DRAW_DEBUG_VIEW: DispatchFsrUpscaleFlags = DispatchFsrUpscaleFlags(1);
@@ -112,7 +112,7 @@ impl ::std::ops::BitAndAssign for DispatchFsrUpscaleFlags {
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct DispatchFsrUpscaleFlags(pub ::std::os::raw::c_int);
+pub struct DispatchFsrUpscaleFlags(pub ::std::os::raw::c_uint);
 impl DispatchUpscaleAutoreactiveFlags {
     pub const APPLY_TONEMAP: DispatchUpscaleAutoreactiveFlags = DispatchUpscaleAutoreactiveFlags(1);
     pub const APPLY_INVERSETONEMAP: DispatchUpscaleAutoreactiveFlags =
@@ -150,7 +150,7 @@ impl ::std::ops::BitAndAssign for DispatchUpscaleAutoreactiveFlags {
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct DispatchUpscaleAutoreactiveFlags(pub ::std::os::raw::c_int);
+pub struct DispatchUpscaleAutoreactiveFlags(pub ::std::os::raw::c_uint);
 #[repr(C)]
 pub struct CreateContextDescUpscale {
     pub header: CreateContextDescHeader,
@@ -188,7 +188,7 @@ pub struct DispatchDescUpscale {
     pub motionVectorScale: FloatCoords2D,
     #[doc = "< The resolution that was used for rendering the input resources."]
     pub renderSize: Dimensions2D,
-    #[doc = "< The resolution that the upscaler will upscale to (optional, assumed maxUpscaleSize otherwise)."]
+    #[doc = "< The resolution that the upscaler will upscale to."]
     pub upscaleSize: Dimensions2D,
     #[doc = "< Enable an additional sharpening pass."]
     pub enableSharpening: bool,
@@ -287,15 +287,11 @@ pub struct ConfigureDescUpscaleKeyValue {
     #[doc = "< Pointer to set or pointer to value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
 }
-#[repr(i32)]
+#[repr(u32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ConfigureUpscaleKey {
     FVELOCITYFACTOR = 0,
-    FREACTIVENESSSCALE = 1,
-    FSHADINGCHANGESCALE = 2,
-    FACCUMULATIONADDEDPERFRAME = 3,
-    FMINDISOCCLUSIONACCUMULATION = 4,
 }
 #[repr(C)]
 pub struct QueryDescUpscaleGetGPUMemoryUsage {

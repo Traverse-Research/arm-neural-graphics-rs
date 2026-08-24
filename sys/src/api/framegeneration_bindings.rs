@@ -7,31 +7,49 @@ pub const DISPATCH_DESC_TYPE_FRAMEGENERATION: StructType_t = 131075;
 pub const CONFIGURE_DESC_TYPE_FRAMEGENERATION: StructType_t = 131074;
 pub const DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE: StructType_t = 131076;
 pub const CONFIGURE_DESC_TYPE_FRAMEGENERATION_KEYVALUE: StructType_t = 131078;
-pub const QUERY_DESC_TYPE_FRAMEGENERATION_GPU_MEMORY_USAGE: StructType_t = 131079;
-pub const CONFIGURE_DESC_TYPE_FRAMEGENERATION_REGISTERDISTORTIONRESOURCE: StructType_t = 131080;
-pub const CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION_HUDLESS: StructType_t = 131081;
-pub const DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE_CAMERAINFO: StructType_t = 131082;
+pub const QUERY_DESC_TYPE_FG_GETPIPELINESTAGEINFO: StructType_t = 131079;
 impl CreateContextFramegenerationFlags {
-    pub const ASYNC_WORKLOAD_SUPPORT: CreateContextFramegenerationFlags =
+    pub const ENABLE_DISPLAY_RESOLUTION_MOTION_VECTORS: CreateContextFramegenerationFlags =
         CreateContextFramegenerationFlags(1);
-    #[doc = "< A bit indicating if the motion vectors are rendered at display resolution."]
-    pub const DISPLAY_RESOLUTION_MOTION_VECTORS: CreateContextFramegenerationFlags =
+    pub const ENABLE_MOTION_VECTORS_JITTER_CANCELLATION: CreateContextFramegenerationFlags =
         CreateContextFramegenerationFlags(2);
-    #[doc = "< A bit indicating that the motion vectors have the jittering pattern applied to them."]
-    pub const MOTION_VECTORS_JITTER_CANCELLATION: CreateContextFramegenerationFlags =
-        CreateContextFramegenerationFlags(4);
     #[doc = "< A bit indicating that the input depth buffer data provided is inverted [1..0]."]
-    pub const DEPTH_INVERTED: CreateContextFramegenerationFlags =
-        CreateContextFramegenerationFlags(8);
+    pub const ENABLE_DEPTH_INVERTED: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(4);
     #[doc = "< A bit indicating that the input depth buffer data provided is using an infinite far plane."]
-    pub const DEPTH_INFINITE: CreateContextFramegenerationFlags =
+    pub const ENABLE_DEPTH_INFINITE: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(8);
+    pub const ENABLE_HIGH_DYNAMIC_RANGE: CreateContextFramegenerationFlags =
         CreateContextFramegenerationFlags(16);
-    #[doc = "< A bit indicating if the input color data provided to all inputs is using a high-dynamic range."]
-    pub const HIGH_DYNAMIC_RANGE: CreateContextFramegenerationFlags =
+    #[doc = "< A bit indicating that warp stages (MV TP1 + flow TM1) should run as fragment jobs"]
+    pub const WARP_FRAGMENT: CreateContextFramegenerationFlags =
         CreateContextFramegenerationFlags(32);
-    #[doc = "< A bit indicating that the runtime should check some API values and report issues."]
-    pub const DEBUG_CHECKING: CreateContextFramegenerationFlags =
+    #[doc = "< A bit indicating that fill holes stages (TP1 + TM1) should run as fragment jobs"]
+    pub const FILL_HOLES_FRAGMENT: CreateContextFramegenerationFlags =
         CreateContextFramegenerationFlags(64);
+    #[doc = "< A bit indicating that the pre-process stage should run as fragment job when supported"]
+    pub const PRE_PROCESS_FRAGMENT: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(128);
+    #[doc = "< A bit indicating that the postprocess stage should run as fragment job when supported"]
+    pub const POSTPROCESS_FRAGMENT: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(256);
+    #[doc = "< A bit indicating that the debug view stage should run as fragment job when supported"]
+    pub const DEBUG_VIEW_FRAGMENT: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(512);
+    pub const ALL_STAGES_FRAGMENT: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(992);
+    #[doc = "< All stages run as compute jobs (no fragment bits set)"]
+    pub const ALL_STAGES_COMPUTE: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(0);
+    #[doc = "< A bit indicating that motion vector hints will be generated in a fragment shader"]
+    pub const MV_HINTS_FRAGMENT: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(2048);
+    #[doc = "< A bit indicating that the SDK manages the previous depth internally."]
+    pub const MANAGE_PREVIOUS_DEPTH: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(131072);
+    #[doc = "< A bit indicating that the SDK manages the previous color internally."]
+    pub const MANAGE_PREVIOUS_COLOR: CreateContextFramegenerationFlags =
+        CreateContextFramegenerationFlags(262144);
 }
 impl ::std::ops::BitOr<CreateContextFramegenerationFlags> for CreateContextFramegenerationFlags {
     type Output = Self;
@@ -60,24 +78,15 @@ impl ::std::ops::BitAndAssign for CreateContextFramegenerationFlags {
     }
 }
 #[repr(transparent)]
+#[doc = " @ingroup ffxFrameGeneration"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct CreateContextFramegenerationFlags(pub ::std::os::raw::c_int);
+pub struct CreateContextFramegenerationFlags(pub ::std::os::raw::c_uint);
 impl DispatchFramegenerationFlags {
-    #[doc = "< A bit indicating that the debug tear lines will be drawn to the generated output."]
-    pub const DRAW_DEBUG_TEAR_LINES: DispatchFramegenerationFlags = DispatchFramegenerationFlags(1);
-    #[doc = "< A bit indicating that the debug reset indicators will be drawn to the generated output."]
-    pub const DRAW_DEBUG_RESET_INDICATORS: DispatchFramegenerationFlags =
-        DispatchFramegenerationFlags(2);
-    #[doc = "< A bit indicating that the generated output resource will contain debug views with relevant information."]
-    pub const DRAW_DEBUG_VIEW: DispatchFramegenerationFlags = DispatchFramegenerationFlags(4);
-    #[doc = "< A bit indicating that the context should only run frame interpolation and not modify the swapchain."]
+    pub const DRAW_DEBUG_VIEW: DispatchFramegenerationFlags = DispatchFramegenerationFlags(1);
     pub const NO_SWAPCHAIN_CONTEXT_NOTIFY: DispatchFramegenerationFlags =
-        DispatchFramegenerationFlags(8);
-    #[doc = "< A bit indicating that the debug pacing lines will be drawn to the generated output."]
-    pub const DRAW_DEBUG_PACING_LINES: DispatchFramegenerationFlags =
-        DispatchFramegenerationFlags(16);
-    pub const RESERVED_1: DispatchFramegenerationFlags = DispatchFramegenerationFlags(32);
-    pub const RESERVED_2: DispatchFramegenerationFlags = DispatchFramegenerationFlags(64);
+        DispatchFramegenerationFlags(2);
+    #[doc = "< A bit indicating that the generated frame will be dumped to disk."]
+    pub const DUMP_GENERATED_FRAME: DispatchFramegenerationFlags = DispatchFramegenerationFlags(4);
 }
 impl ::std::ops::BitOr<DispatchFramegenerationFlags> for DispatchFramegenerationFlags {
     type Output = Self;
@@ -106,43 +115,10 @@ impl ::std::ops::BitAndAssign for DispatchFramegenerationFlags {
     }
 }
 #[repr(transparent)]
+#[doc = " @ingroup ffxFrameGeneration"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct DispatchFramegenerationFlags(pub ::std::os::raw::c_int);
-impl UiCompositionFlags {
-    #[doc = "< A bit indicating that we use premultiplied alpha for UI composition."]
-    pub const USE_PREMUL_ALPHA: UiCompositionFlags = UiCompositionFlags(1);
-    #[doc = "< A bit indicating that the swapchain should doublebuffer the UI resource."]
-    pub const ENABLE_INTERNAL_UI_DOUBLE_BUFFERING: UiCompositionFlags = UiCompositionFlags(2);
-}
-impl ::std::ops::BitOr<UiCompositionFlags> for UiCompositionFlags {
-    type Output = Self;
-    #[inline]
-    fn bitor(self, other: Self) -> Self {
-        UiCompositionFlags(self.0 | other.0)
-    }
-}
-impl ::std::ops::BitOrAssign for UiCompositionFlags {
-    #[inline]
-    fn bitor_assign(&mut self, rhs: UiCompositionFlags) {
-        self.0 |= rhs.0;
-    }
-}
-impl ::std::ops::BitAnd<UiCompositionFlags> for UiCompositionFlags {
-    type Output = Self;
-    #[inline]
-    fn bitand(self, other: Self) -> Self {
-        UiCompositionFlags(self.0 & other.0)
-    }
-}
-impl ::std::ops::BitAndAssign for UiCompositionFlags {
-    #[inline]
-    fn bitand_assign(&mut self, rhs: UiCompositionFlags) {
-        self.0 &= rhs.0;
-    }
-}
-#[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub struct UiCompositionFlags(pub ::std::os::raw::c_int);
+pub struct DispatchFramegenerationFlags(pub ::std::os::raw::c_uint);
+#[doc = " @ingroup ffxFrameGeneration"]
 #[repr(C)]
 pub struct CreateContextDescFrameGeneration {
     pub header: CreateContextDescHeader,
@@ -151,10 +127,24 @@ pub struct CreateContextDescFrameGeneration {
     #[doc = "< The resolution at which both rendered and generated frames will be displayed."]
     pub displaySize: Dimensions2D,
     #[doc = "< The maximum rendering resolution."]
-    pub maxRenderSize: Dimensions2D,
+    pub renderSize: Dimensions2D,
+    #[doc = "< The initial view-projection matrix used to initialize internal state."]
+    pub initialViewProjection: Float32x4x4,
     #[doc = "< The surface format for the backbuffer. One of the values from FfxApiSurfaceFormat."]
     pub backBufferFormat: u32,
+    #[doc = "< A pointer to a function that can receive messages from the runtime. May be null."]
+    pub fpMessage: Message,
 }
+impl Default for CreateContextDescFrameGeneration {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[doc = " @ingroup ffxFrameGeneration"]
 #[repr(C)]
 pub struct CallbackDescFrameGenerationPresent {
     pub header: DispatchDescHeader,
@@ -173,6 +163,16 @@ pub struct CallbackDescFrameGenerationPresent {
     #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
 }
+impl Default for CallbackDescFrameGenerationPresent {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[doc = " @ingroup ffxFrameGeneration"]
 #[repr(C)]
 pub struct DispatchDescFrameGeneration {
     pub header: DispatchDescHeader,
@@ -186,74 +186,84 @@ pub struct DispatchDescFrameGeneration {
     pub numGeneratedFrames: u32,
     #[doc = "< A boolean value which when set to true, indicates the camera has moved discontinuously."]
     pub reset: bool,
-    #[doc = "< The transfer function use to convert frame generation source color data to linear RGB. One of the values from FfxApiBackbufferTransferFunction."]
-    pub backbufferTransferFunction: u32,
-    #[doc = "< Min and max luminance values, used when converting HDR colors to linear RGB."]
-    pub minMaxLuminance: [f32; 2usize],
-    #[doc = "< The area of the backbuffer that should be used for generation in case only a part of the screen is used e.g. due to movie bars."]
-    pub generationRect: Rect2D,
     #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
 }
-pub type PresentCallbackFunc = ::std::option::Option<
+impl Default for DispatchDescFrameGeneration {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+pub type CallbackFrameGenerationPresentFunc = ::std::option::Option<
     unsafe extern "C" fn(
         params: *mut CallbackDescFrameGenerationPresent,
         pUserCtx: *mut ::std::os::raw::c_void,
     ) -> ReturnCode_t,
 >;
-pub type FrameGenerationDispatchFunc = ::std::option::Option<
+pub type DispatchFrameGenerationFunc = ::std::option::Option<
     unsafe extern "C" fn(
         params: *mut DispatchDescFrameGeneration,
         pUserCtx: *mut ::std::os::raw::c_void,
     ) -> ReturnCode_t,
 >;
+#[doc = " @ingroup ffxFrameGeneration"]
 #[repr(C)]
 pub struct ConfigureDescFrameGeneration {
     pub header: ConfigureDescHeader,
     #[doc = "< The swapchain to use with frame generation."]
     pub swapChain: *mut ::std::os::raw::c_void,
     #[doc = "< A UI composition callback to call when finalizing the frame image."]
-    pub presentCallback: PresentCallbackFunc,
+    pub presentCallback: CallbackFrameGenerationPresentFunc,
     #[doc = "< A pointer to be passed to the UI composition callback."]
     pub presentCallbackUserContext: *mut ::std::os::raw::c_void,
     #[doc = "< The frame generation callback to use to generate a frame."]
-    pub frameGenerationCallback: FrameGenerationDispatchFunc,
+    pub frameGenerationCallback: DispatchFrameGenerationFunc,
     #[doc = "< A pointer to be passed to the frame generation callback."]
     pub frameGenerationCallbackUserContext: *mut ::std::os::raw::c_void,
     #[doc = "< Sets the state of frame generation. Set to false to disable frame generation."]
     pub frameGenerationEnabled: bool,
     #[doc = "< Sets the state of async workloads. Set to true to enable generation work on async compute."]
     pub allowAsyncWorkloads: bool,
-    #[doc = "< The hudless back buffer image to use for UI extraction from backbuffer resource. May be empty."]
-    pub HUDLessColor: Resource,
     #[doc = "< Zero or combination of flags from FfxApiDispatchFrameGenerationFlags."]
     pub flags: u32,
     #[doc = "< Set to true to only present generated frames."]
     pub onlyPresentGenerated: bool,
-    #[doc = "< The area of the backbuffer that should be used for generation in case only a part of the screen is used e.g. due to movie bars"]
-    pub generationRect: Rect2D,
     #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
+    #[doc = "< Path to dump generated frames if the corresponding flag is set."]
+    pub dumpGeneratedFramePath: *const ::std::os::raw::c_char,
 }
+impl Default for ConfigureDescFrameGeneration {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[doc = " @ingroup ffxFrameGeneration"]
 #[repr(C)]
 pub struct DispatchDescFrameGenerationPrepare {
     pub header: DispatchDescHeader,
     #[doc = "< Identifier used to select internal resources when async support is enabled. Must increment by exactly one (1) for each frame. Any non-exactly-one difference will reset the frame generation logic."]
     pub frameID: u64,
-    #[doc = "< Zero or combination of values from FfxApiDispatchFrameGenerationFlags."]
-    pub flags: u32,
     #[doc = "< A command list to record frame generation commands into."]
     pub commandList: *mut ::std::os::raw::c_void,
-    #[doc = "< The dimensions used to render game content, dilatedDepth, dilatedMotionVectors are expected to be of ths size."]
-    pub renderSize: Dimensions2D,
     #[doc = "< The subpixel jitter offset applied to the camera."]
     pub jitterOffset: FloatCoords2D,
     #[doc = "< The scale factor to apply to motion vectors."]
     pub motionVectorScale: FloatCoords2D,
+    #[doc = "< Motion-vector similarity threshold (epsilon) used by dynamic-mask classification. <= 0 falls back to the legacy default (0.3)."]
+    pub mvSimilarityThreshold: f32,
+    #[doc = "< Motion-vector noise threshold (tau) used by dynamic-mask classification. <= 0 falls back to the legacy default (1.0)."]
+    pub mvSimilarityNoiseThreshold: f32,
     #[doc = "< Time elapsed in milliseconds since the last frame."]
     pub frameTimeDelta: f32,
-    #[doc = "< A (currently unused) boolean value which when set to true, indicates FrameGeneration will be called in reset mode"]
-    pub unused_reset: bool,
     #[doc = "< The distance to the near plane of the camera."]
     pub cameraNear: f32,
     #[doc = "< The distance to the far plane of the camera. This is used only used in case of non infinite depth."]
@@ -266,7 +276,23 @@ pub struct DispatchDescFrameGenerationPrepare {
     pub depth: Resource,
     #[doc = "< The motion vector data"]
     pub motionVectors: Resource,
+    #[doc = "< The depth buffer data from the previous frame. Required when FFX_API_FG_CONTEXT_FLAG_MANAGE_PREVIOUS_DEPTH is not set; ignored otherwise."]
+    pub depthTm1: Resource,
+    #[doc = "< The rendered output from the previous frame. Required when FFX_API_FG_CONTEXT_FLAG_MANAGE_PREVIOUS_COLOR is not set; ignored otherwise."]
+    pub colorTm1: Resource,
+    #[doc = "< This frame's ViewProjection matrix (column major)"]
+    pub viewProjection: Float32x4x4,
 }
+impl Default for DispatchDescFrameGenerationPrepare {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[doc = " @ingroup ffxFrameGeneration"]
 #[repr(C)]
 pub struct ConfigureDescFrameGenerationKeyValue {
     pub header: ConfigureDescHeader,
@@ -277,40 +303,38 @@ pub struct ConfigureDescFrameGenerationKeyValue {
     #[doc = "< Pointer to set or pointer to value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
 }
-#[repr(i32)]
-#[non_exhaustive]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
-pub enum ConfigureFrameGenerationKey {
-    __bindgen_cannot_repr_c_on_empty_enum = 0,
+impl Default for ConfigureDescFrameGenerationKeyValue {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
+#[doc = " @ingroup ffxFrameGeneration"]
 #[repr(C)]
-pub struct QueryDescFrameGenerationGetGPUMemoryUsage {
+pub struct QueryDescFgGetPipelineStageInfo {
     pub header: QueryDescHeader,
-    pub gpuMemoryUsageFrameGeneration: *mut EffectMemoryUsage,
+    #[doc = "< A pointer to a <c>bool</c> which will be set to true if warp stages run as fragment jobs. May be null."]
+    pub pOutWarpUsesFragment: *mut bool,
+    #[doc = "< A pointer to a <c>bool</c> which will be set to true if fill holes stages run as fragment jobs. May be null."]
+    pub pOutFillHolesUsesFragment: *mut bool,
+    #[doc = "< A pointer to a <c>bool</c> which will be set to true if the pre-process stage runs as a fragment job. May be null."]
+    pub pOutPreProcessUsesFragment: *mut bool,
+    #[doc = "< A pointer to a <c>bool</c> which will be set to true if the postprocess stage runs as a fragment job. May be null."]
+    pub pOutPostprocessUsesFragment: *mut bool,
+    #[doc = "< A pointer to a <c>bool</c> which will be set to true if the debug view stage runs as a fragment job. May be null."]
+    pub pOutDebugViewUsesFragment: *mut bool,
 }
-#[repr(C)]
-pub struct ConfigureDescFrameGenerationRegisterDistortionFieldResource {
-    pub header: ConfigureDescHeader,
-    #[doc = "< A resource containing distortion offset data. Needs to be 2-component (ie. RG). Read by FG shaders via Sample. Resource's xy components encodes [UV coordinate of pixel after lens distortion effect- UV coordinate of pixel before lens distortion]."]
-    pub distortionField: Resource,
-}
-#[repr(C)]
-pub struct CreateContextDescFrameGenerationHudless {
-    pub header: CreateContextDescHeader,
-    #[doc = "< The surface format for the hudless back buffer. One of the values from FfxApiSurfaceFormat."]
-    pub hudlessBackBufferFormat: u32,
-}
-#[repr(C)]
-pub struct DispatchDescFrameGenerationPrepareCameraInfo {
-    pub header: ConfigureDescHeader,
-    #[doc = "< The camera position in world space"]
-    pub cameraPosition: [f32; 3usize],
-    #[doc = "< The camera up normalized vector in world space."]
-    pub cameraUp: [f32; 3usize],
-    #[doc = "< The camera right normalized vector in world space."]
-    pub cameraRight: [f32; 3usize],
-    #[doc = "< The camera forward normalized vector in world space."]
-    pub cameraForward: [f32; 3usize],
+impl Default for QueryDescFgGetPipelineStageInfo {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 
 unsafe impl TaggedStructure for CreateContextDescFrameGeneration {
@@ -373,38 +397,8 @@ unsafe impl TaggedStructure for ConfigureDescFrameGenerationKeyValue {
     }
 }
 
-unsafe impl TaggedStructure for QueryDescFrameGenerationGetGPUMemoryUsage {
-    const TAG: StructType_t = QUERY_DESC_TYPE_FRAMEGENERATION_GPU_MEMORY_USAGE;
-    fn header(&self) -> &Header {
-        &self.header
-    }
-    fn header_mut(&mut self) -> &mut Header {
-        &mut self.header
-    }
-}
-
-unsafe impl TaggedStructure for ConfigureDescFrameGenerationRegisterDistortionFieldResource {
-    const TAG: StructType_t = CONFIGURE_DESC_TYPE_FRAMEGENERATION_REGISTERDISTORTIONRESOURCE;
-    fn header(&self) -> &Header {
-        &self.header
-    }
-    fn header_mut(&mut self) -> &mut Header {
-        &mut self.header
-    }
-}
-
-unsafe impl TaggedStructure for CreateContextDescFrameGenerationHudless {
-    const TAG: StructType_t = CREATE_CONTEXT_DESC_TYPE_FRAMEGENERATION_HUDLESS;
-    fn header(&self) -> &Header {
-        &self.header
-    }
-    fn header_mut(&mut self) -> &mut Header {
-        &mut self.header
-    }
-}
-
-unsafe impl TaggedStructure for DispatchDescFrameGenerationPrepareCameraInfo {
-    const TAG: StructType_t = DISPATCH_DESC_TYPE_FRAMEGENERATION_PREPARE_CAMERAINFO;
+unsafe impl TaggedStructure for QueryDescFgGetPipelineStageInfo {
+    const TAG: StructType_t = QUERY_DESC_TYPE_FG_GETPIPELINESTAGEINFO;
     fn header(&self) -> &Header {
         &self.header
     }

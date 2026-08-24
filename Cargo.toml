@@ -1,5 +1,21 @@
 [workspace]
+resolver = "2"
 members = [
   "api_gen",
+  "bin",
   "sys",
 ]
+
+[workspace.package]
+authors = ["Traverse Research <support@traverseresearch.nl>"]
+edition = "2021"
+homepage = "https://traverseresearch.nl"
+keywords = ["arm", "neural-graphics", "upscaling", "nss", "vulkan"]
+license = "MIT"
+repository = "https://github.com/Traverse-Research/arm-neural-graphisc-rs"
+rust-version = "1.74"
+version = "0.1.0+v1.1.0"
+
+[patch.crates-io]
+# Latest Vulkan 1.4.352 bindings:
+ash = { git = "https://github.com/ash-rs/ash.git", rev = "a9a1fb1" }

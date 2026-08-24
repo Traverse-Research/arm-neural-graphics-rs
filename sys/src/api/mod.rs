@@ -1,6 +1,6 @@
-//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/tree/v1.1.4/ffx-api>.
+//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/arm/neural-graphics-sdk-for-game-engines/blob/v1.1.0/ffx-api>.
 //!
-//! See <https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK/blob/v1.1.4/docs/getting-started/ffx-api.md> for details on how to use this new API.
+//! See <https://github.com/arm/neural-graphics-sdk-for-game-engines/blob/v1.1.0/docs/user_guide.md> for details on how to use this new API.
 
 #![allow(
     non_upper_case_globals,
@@ -60,6 +60,12 @@ pub unsafe trait TaggedStructure: Sized {
 
 include!("bindings.rs");
 
+pub mod nss {
+    use super::*;
+
+    include!("nss_bindings.rs");
+}
+
 pub mod upscale {
     use super::*;
 
@@ -77,40 +83,14 @@ pub mod vk {
     use super::*;
 
     use ash::vk::{
-        Device as VkDevice, Fence as VkFence, PFN_vkAcquireNextImageKHR, PFN_vkGetDeviceProcAddr,
-        PFN_vkGetSwapchainImagesKHR, PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT,
-        PhysicalDevice as VkPhysicalDevice, Queue as VkQueue, Result as VkResult,
-        SwapchainKHR as VkSwapchainKHR,
+        Device as VkDevice, Fence as VkFence, Instance as VkInstance, PFN_vkAcquireNextImageKHR,
+        PFN_vkGetDeviceProcAddr, PFN_vkGetInstanceProcAddr, PFN_vkGetSwapchainImagesKHR,
+        PFN_vkQueuePresentKHR, PFN_vkSetHdrMetadataEXT, PhysicalDevice as VkPhysicalDevice,
+        Queue as VkQueue, Result as VkResult, SwapchainKHR as VkSwapchainKHR,
     };
-    type VkAllocationCallbacks = ash::vk::AllocationCallbacks<'static>;
+    type VkAllocationCallbacks = ash::vk::AllocationCallbacks;
     type VkSwapchainCreateInfoKHR = ash::vk::SwapchainCreateInfoKHR<'static>;
     type VkSubmitInfo = ash::vk::SubmitInfo<'static>;
 
     include!("vk_backend_bindings.rs");
-}
-
-#[cfg(feature = "dx12")]
-pub mod dx12 {
-    use super::*;
-
-    // Interfaces must be defined as c_void type (or other private structure) because the `windows`
-    // crate types internally define the pointer whereas C bindings refer to these opaque types with
-    // a pointer.
-
-    type ID3D12Device = std::ffi::c_void;
-
-    type IDXGISwapChain4 = std::ffi::c_void;
-    type ID3D12CommandQueue = std::ffi::c_void;
-    type IDXGIFactory = std::ffi::c_void;
-
-    type DXGI_SWAP_CHAIN_DESC = std::ffi::c_void;
-    type DXGI_SWAP_CHAIN_DESC1 = std::ffi::c_void;
-    type DXGI_SWAP_CHAIN_FULLSCREEN_DESC = std::ffi::c_void;
-
-    #[allow(clippy::upper_case_acronyms)]
-    type UINT = u32;
-    #[allow(clippy::upper_case_acronyms)]
-    type HWND = UINT;
-
-    include!("dx12_backend_bindings.rs");
 }

@@ -45,8 +45,10 @@ pub struct CreateBackendVKDesc {
     pub vkDevice: VkDevice,
     #[doc = "< the physical device used by the program."]
     pub vkPhysicalDevice: VkPhysicalDevice,
+    pub vkInstance: VkInstance,
     #[doc = "< function pointer to get device procedure addresses"]
     pub vkDeviceProcAddr: PFN_vkGetDeviceProcAddr,
+    pub vkGetInstanceProcAddr: PFN_vkGetInstanceProcAddr,
 }
 #[repr(C)]
 pub struct CreateContextDescFrameGenerationSwapChainVK {
@@ -104,7 +106,7 @@ pub struct ConfigureDescFrameGenerationSwapChainKeyValueVK {
     #[doc = "< Pointer to set or pointer to value to set."]
     pub ptr: *mut ::std::os::raw::c_void,
 }
-#[repr(i32)]
+#[repr(u32)]
 #[non_exhaustive]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum ConfigureFrameGenerationSwapChainKeyVK {

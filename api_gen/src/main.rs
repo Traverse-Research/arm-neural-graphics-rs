@@ -3,7 +3,7 @@ use std::{cell::RefCell, fs::File, io::Write, path::Path, rc::Rc};
 use heck::ToShoutySnekCase;
 
 fn main() {
-    let api_dir = Path::new("sys/FidelityFX-SDK/ffx-api/");
+    let api_dir = Path::new("sys/neural-graphics-sdk-for-game-engines/ffx-api/");
     let vk_include_dir = Path::new("sys/Vulkan-Headers/include");
 
     generate_api_bindings(api_dir, vk_include_dir);
@@ -44,31 +44,29 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
     ) -> Option<String> {
         let enum_name = enum_name?;
 
-        if enum_name.starts_with("Ffx") {
+        if enum_name.starts_with("FfxApi") {
             // Exceptions
             let common_prefix = match enum_name {
                 "FfxApiReturnCodes" => "FFX_API_RETURN".to_owned(),
                 "FfxApiMsgType" => "FFX_API_MESSAGE_TYPE".to_owned(),
                 "FfxApiUpscaleQualityMode" => "FFX_UPSCALE_QUALITY_MODE".to_owned(),
                 "FfxApiCreateContextUpscaleFlags" => "FFX_UPSCALE_ENABLE".to_owned(),
+                "FfxApiCreateContextNssFlags" => "FFX_API_NSS_CONTEXT_FLAG".to_owned(),
                 "FfxApiDispatchFsrUpscaleFlags" => "FFX_UPSCALE_FLAG".to_owned(),
+                "FfxApiDispatchNssFlags" => "FFX_API_NSS_DISPATCH_FLAG".to_owned(),
                 "FfxApiDispatchUpscaleAutoreactiveFlags" => {
                     "FFX_UPSCALE_AUTOREACTIVEFLAGS".to_owned()
                 }
-                "FfxApiCreateContextFramegenerationFlags" => {
-                    "FFX_FRAMEGENERATION_ENABLE".to_owned()
-                }
-                "FfxApiDispatchFramegenerationFlags" => "FFX_FRAMEGENERATION_FLAG".to_owned(),
-                "FfxApiUiCompositionFlags" => "FFX_FRAMEGENERATION_UI_COMPOSITION_FLAG".to_owned(),
+                "FfxApiCreateContextFramegenerationFlags" => "FFX_API_FG_CONTEXT_FLAG".to_owned(),
+                "FfxApiDispatchFramegenerationFlags" => "FFX_API_FG_DISPATCH_FLAG".to_owned(),
                 "FfxApiConfigureFrameGenerationSwapChainKeyVK" => {
-                    "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
-                }
-                "FfxApiConfigureFrameGenerationSwapChainKeyDX12" => {
                     "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
                 }
                 e => e.TO_SHOUTY_SNEK_CASE(),
             };
-            let variant_name = original_variant_name.strip_prefix(&common_prefix).unwrap();
+            let variant_name = original_variant_name
+                .strip_prefix(&common_prefix)
+                .expect(&common_prefix);
             let no_prefix = variant_name.strip_prefix("_").expect(variant_name);
             // Keep the leading _ if the variant otherwise starts with a number, which is invalid
             Some(no_prefix.to_owned())
@@ -131,6 +129,8 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 );
                 let enum_name = enum_name.replace("GET_JITTER_PHASE_COUNT", "GETJITTERPHASECOUNT");
                 let enum_name = enum_name.replace("GET_JITTER_OFFSET", "GETJITTEROFFSET");
+                let enum_name =
+                    enum_name.replace("GET_PIPELINE_STAGE_INFO", "GETPIPELINESTAGEINFO");
                 let enum_name = enum_name.replace("GENERATE_REACTIVE_MASK", "GENERATEREACTIVEMASK");
                 let enum_name = enum_name.replace("GET_GPU_MEMORY_USAGE", "GPU_MEMORY_USAGE");
                 let enum_name = enum_name.replace(
@@ -150,9 +150,6 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
 
                 if enum_name == "OVERRIDE_VERSION" {
                     enum_name = "DESC_TYPE_OVERRIDE_VERSION".to_string();
-                }
-                if enum_name == "QUERY_GET_PROVIDER_VERSION" {
-                    enum_name = "QUERY_DESC_TYPE_GET_PROVIDER_VERSION".to_string();
                 }
 
                 add.push_str(&format!(
@@ -210,9 +207,9 @@ fn bindgen() -> (bindgen::Builder, Rc<RefCell<String>>) {
 fn generate_api_bindings(api_dir: &Path, vk_include_dir: &Path) {
     generate_api_root_bindings(api_dir);
     generate_upscale_bindings(api_dir);
+    generate_nss_bindings(api_dir);
     generate_framegeneration_bindings(api_dir);
     generate_vk_backend_bindings(api_dir, vk_include_dir);
-    generate_dx12_backend_bindings(api_dir);
 }
 
 fn generate_api_root_bindings(api_dir: &Path) {
@@ -237,7 +234,7 @@ fn generate_api_root_bindings(api_dir: &Path) {
         .newtype_enum("FfxApiMsgType")
         .no_default("ffxApiHeader")
         .no_default("ffxOverrideVersion")
-        .no_default("ffxQueryGetProviderVersion")
+        // .no_default("ffxQueryGetProviderVersion")
         .generate()
         .expect("Unable to generate bindings");
 
@@ -270,6 +267,26 @@ fn generate_upscale_bindings(api_dir: &Path) {
         .unwrap();
 }
 
+fn generate_nss_bindings(api_dir: &Path) {
+    let wrapper = api_dir.join("include/ffx_api/ffx_nss.h");
+
+    let (builder, custom_code) = bindgen_no_dynamic_library();
+    let bindings = builder
+        .header(wrapper.to_string_lossy())
+        .allowlist_file(escape_regex_file_path(&wrapper))
+        .bitfield_enum("FfxApiCreateContextNssFlags")
+        .bitfield_enum("FfxApiDispatchNssFlags")
+        .generate()
+        .expect("Unable to generate bindings");
+
+    let mut out = File::create("sys/src/api/nss_bindings.rs").unwrap();
+    bindings
+        .write(Box::new(&mut out))
+        .expect("Couldn't write bindings!");
+    out.write_fmt(format_args!("{}", custom_code.borrow()))
+        .unwrap();
+}
+
 fn generate_framegeneration_bindings(api_dir: &Path) {
     let wrapper = api_dir.join("include/ffx_api/ffx_framegeneration.h");
 
@@ -279,7 +296,7 @@ fn generate_framegeneration_bindings(api_dir: &Path) {
         .allowlist_file(escape_regex_file_path(&wrapper))
         .bitfield_enum("FfxApiCreateContextFramegenerationFlags")
         .bitfield_enum("FfxApiDispatchFramegenerationFlags")
-        .bitfield_enum("FfxApiUiCompositionFlags")
+        // .bitfield_enum("FfxApiUiCompositionFlags")
         .generate()
         .expect("Unable to generate bindings");
 
@@ -304,25 +321,6 @@ fn generate_vk_backend_bindings(api_dir: &Path, vk_include_dir: &Path) {
         .expect("Unable to generate bindings");
 
     let mut out = File::create("sys/src/api/vk_backend_bindings.rs").unwrap();
-    bindings
-        .write(Box::new(&mut out))
-        .expect("Couldn't write bindings!");
-    out.write_fmt(format_args!("{}", custom_code.borrow()))
-        .unwrap();
-}
-
-fn generate_dx12_backend_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/dx12/ffx_api_dx12.h");
-
-    let (builder, custom_code) = bindgen_no_dynamic_library();
-    let bindings = builder
-        .header(wrapper.to_string_lossy())
-        .allowlist_file(escape_regex_file_path(&wrapper))
-        .no_default("ffxQueryFrameGenerationSwapChainGetGPUMemoryUsageDX12")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let mut out = File::create("sys/src/api/dx12_backend_bindings.rs").unwrap();
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
