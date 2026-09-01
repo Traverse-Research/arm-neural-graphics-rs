@@ -168,6 +168,14 @@ unsafe impl TaggedStructure for {final_name} {{
             }
         }
     }
+
+    fn add_derives(&self, info: &bindgen::callbacks::DeriveInfo<'_>) -> Vec<String> {
+        if info.name.ends_with("Flags") {
+            vec!["Default".to_owned()]
+        } else {
+            vec![]
+        }
+    }
 }
 
 /// Converts a single `Path` to a regex, replacing the `.` (commonly used as extension separator) to

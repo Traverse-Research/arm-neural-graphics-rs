@@ -79,7 +79,7 @@ impl ::std::ops::BitAndAssign for CreateContextFramegenerationFlags {
 }
 #[repr(transparent)]
 #[doc = " @ingroup ffxFrameGeneration"]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct CreateContextFramegenerationFlags(pub ::std::os::raw::c_uint);
 impl DispatchFramegenerationFlags {
     pub const DRAW_DEBUG_VIEW: DispatchFramegenerationFlags = DispatchFramegenerationFlags(1);
@@ -116,7 +116,7 @@ impl ::std::ops::BitAndAssign for DispatchFramegenerationFlags {
 }
 #[repr(transparent)]
 #[doc = " @ingroup ffxFrameGeneration"]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct DispatchFramegenerationFlags(pub ::std::os::raw::c_uint);
 #[doc = " @ingroup ffxFrameGeneration"]
 #[repr(C)]

@@ -74,7 +74,7 @@ impl ::std::ops::BitAndAssign for CreateContextUpscaleFlags {
     }
 }
 #[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct CreateContextUpscaleFlags(pub ::std::os::raw::c_uint);
 impl DispatchFsrUpscaleFlags {
     #[doc = "< A bit indicating that the output resource will contain debug views with relevant information."]
@@ -111,7 +111,7 @@ impl ::std::ops::BitAndAssign for DispatchFsrUpscaleFlags {
     }
 }
 #[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct DispatchFsrUpscaleFlags(pub ::std::os::raw::c_uint);
 impl DispatchUpscaleAutoreactiveFlags {
     pub const APPLY_TONEMAP: DispatchUpscaleAutoreactiveFlags = DispatchUpscaleAutoreactiveFlags(1);
@@ -149,7 +149,7 @@ impl ::std::ops::BitAndAssign for DispatchUpscaleAutoreactiveFlags {
     }
 }
 #[repr(transparent)]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct DispatchUpscaleAutoreactiveFlags(pub ::std::os::raw::c_uint);
 #[repr(C)]
 pub struct CreateContextDescUpscale {

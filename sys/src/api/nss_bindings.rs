@@ -65,7 +65,7 @@ impl ::std::ops::BitAndAssign for CreateContextNssFlags {
 }
 #[repr(transparent)]
 #[doc = " @ingroup ffxNss"]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct CreateContextNssFlags(pub ::std::os::raw::c_uint);
 impl DispatchNssFlags {
     pub const ENABLE_DEBUG_CHECKING: DispatchNssFlags = DispatchNssFlags(1);
@@ -99,7 +99,7 @@ impl ::std::ops::BitAndAssign for DispatchNssFlags {
 }
 #[repr(transparent)]
 #[doc = " @ingroup ffxNss"]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct DispatchNssFlags(pub ::std::os::raw::c_uint);
 #[doc = " @ingroup ffxNss"]
 #[repr(C)]

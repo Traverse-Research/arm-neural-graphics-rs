@@ -350,7 +350,7 @@ impl ::std::ops::BitAndAssign for ResourceFlags {
 }
 #[repr(transparent)]
 #[doc = " An enumeration of resource flags."]
-#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq, Default)]
 pub struct ResourceFlags(pub ::std::os::raw::c_uint);
 #[repr(u32)]
 #[non_exhaustive]
