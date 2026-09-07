@@ -49,10 +49,7 @@ impl MsgType {
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct MsgType(pub ::std::os::raw::c_uint);
-pub type Message =
-    ::std::option::Option<unsafe extern "C" fn(type_: u32, message: *const ::std::os::raw::c_char)>;
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
 pub struct ConfigureDescGlobalDebug1 {
     pub header: ConfigureDescHeader,
     pub fpMessage: Message,
@@ -209,8 +206,6 @@ impl ResourceUsage {
     pub const ARRAYVIEW: ResourceUsage = ResourceUsage(16);
     #[doc = "< Indicates a resource will be used as stencil target."]
     pub const STENCILTARGET: ResourceUsage = ResourceUsage(32);
-    #[doc = "< Indicates a resource will be used by data graph pipeline."]
-    pub const DATA_GRAPH: ResourceUsage = ResourceUsage(64);
 }
 impl ::std::ops::BitOr<ResourceUsage> for ResourceUsage {
     type Output = Self;
@@ -246,33 +241,28 @@ pub struct ResourceUsage(pub ::std::os::raw::c_uint);
 pub use self::ResourceUsage as ResorceUsage;
 impl ResourceState {
     pub const COMMON: ResourceState = ResourceState(1);
-    #[doc = "< Indicates a resource is in the state to be used as UAV in compute shaders."]
-    pub const COMPUTE_UAV: ResourceState = ResourceState(2);
-    #[doc = "< Indicates a resource is in the state to be used as UAV in pixel shaders."]
-    pub const PIXEL_UAV: ResourceState = ResourceState(4);
-    pub const UNORDERED_ACCESS: ResourceState = ResourceState(6);
+    #[doc = "< Indicates a resource is in the state to be used as UAV."]
+    pub const UNORDERED_ACCESS: ResourceState = ResourceState(2);
     #[doc = "< Indicates a resource is in the state to be read by compute shaders."]
-    pub const COMPUTE_READ: ResourceState = ResourceState(8);
+    pub const COMPUTE_READ: ResourceState = ResourceState(4);
     #[doc = "< Indicates a resource is in the state to be read by pixel shaders."]
-    pub const PIXEL_READ: ResourceState = ResourceState(16);
-    pub const PIXEL_COMPUTE_READ: ResourceState = ResourceState(24);
+    pub const PIXEL_READ: ResourceState = ResourceState(8);
+    pub const PIXEL_COMPUTE_READ: ResourceState = ResourceState(12);
     #[doc = "< Indicates a resource is in the state to be used as source in a copy command."]
-    pub const COPY_SRC: ResourceState = ResourceState(32);
+    pub const COPY_SRC: ResourceState = ResourceState(16);
     #[doc = "< Indicates a resource is in the state to be used as destination in a copy command."]
-    pub const COPY_DEST: ResourceState = ResourceState(64);
-    pub const GENERIC_READ: ResourceState = ResourceState(40);
+    pub const COPY_DEST: ResourceState = ResourceState(32);
+    pub const GENERIC_READ: ResourceState = ResourceState(20);
     #[doc = "< Indicates a resource is in the state to be used as an indirect command argument"]
-    pub const INDIRECT_ARGUMENT: ResourceState = ResourceState(128);
+    pub const INDIRECT_ARGUMENT: ResourceState = ResourceState(64);
     #[doc = "< Indicates a resource is in the state to be used to present to the swap chain"]
-    pub const PRESENT: ResourceState = ResourceState(256);
+    pub const PRESENT: ResourceState = ResourceState(128);
     #[doc = "< Indicates a resource is in the state to be used as render target"]
-    pub const RENDER_TARGET: ResourceState = ResourceState(512);
+    pub const RENDER_TARGET: ResourceState = ResourceState(256);
     #[doc = "< Indicates a resource is in the state to be read by data graph"]
-    pub const DATA_GRAPH_READ: ResourceState = ResourceState(1024);
+    pub const DATA_GRAPH_READ: ResourceState = ResourceState(512);
     #[doc = "< Indicates a resource is in the state to be written by data graph"]
-    pub const DATA_GRAPH_WRITE: ResourceState = ResourceState(2048);
-    #[doc = "< Indicates a resource is in the state of Depth/Stencil read"]
-    pub const DEPTH_STENCIL_READ: ResourceState = ResourceState(4096);
+    pub const DATA_GRAPH_WRITE: ResourceState = ResourceState(1024);
 }
 impl ::std::ops::BitOr<ResourceState> for ResourceState {
     type Output = Self;
@@ -368,6 +358,14 @@ pub enum ResourceType {
     TEXTURE3D = 4,
     #[doc = "< The resource is a tensor."]
     TENSOR = 5,
+}
+#[repr(u32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum BackbufferTransferFunction {
+    SRGB = 0,
+    PQ = 1,
+    SCRGB = 2,
 }
 #[doc = " A structure encapsulating a 2-dimensional point, using 32bit unsigned integers."]
 #[repr(C)]

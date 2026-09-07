@@ -5,18 +5,17 @@ pub const CREATE_CONTEXT_DESC_TYPE_NSS: StructType_t = 983040;
 pub const DISPATCH_DESC_TYPE_NSS: StructType_t = 983041;
 pub const QUERY_DESC_TYPE_NSS_GETJITTERPHASECOUNT: StructType_t = 983044;
 pub const QUERY_DESC_TYPE_NSS_GETJITTEROFFSET: StructType_t = 983045;
-pub const QUERY_DESC_TYPE_NSS_GETPIPELINESTAGEINFO: StructType_t = 983046;
 #[repr(u32)]
 #[non_exhaustive]
 #[doc = " @ingroup ffxNss"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum NssShaderQualityMode {
     #[doc = "< Perform upscaling with a shader quality mode of 'Quality'"]
-    QUALITY = 0,
-    #[doc = "< Perform upscaling with a shader quality mode of 'Balance'"]
-    BALANCED = 1,
+    QUALITY = 1,
+    #[doc = "< Perform upscaling with a shader quality mode of 'Balanced'"]
+    BALANCED = 2,
     #[doc = "< Perform upscaling with a shader quality mode of 'Performance'"]
-    PERFORMANCE = 2,
+    PERFORMANCE = 3,
 }
 impl CreateContextNssFlags {
     #[doc = "< Use a quantized data graph. Resources will be quantized to 8 bits."]
@@ -29,13 +28,12 @@ impl CreateContextNssFlags {
     pub const DEPTH_INFINITE: CreateContextNssFlags = CreateContextNssFlags(8);
     #[doc = "< A bit indicating sample using Bicubic filtering"]
     pub const RESAMPLE_BICUBIC: CreateContextNssFlags = CreateContextNssFlags(16);
+    #[doc = "< A bit indicating tensor image aliasing is enable."]
+    pub const READ_TENSORS_AS_IMAGES: CreateContextNssFlags = CreateContextNssFlags(32);
     #[doc = "< A bit indicating that the runtime should allow 16bit resources to be used."]
-    pub const ALLOW_16BIT: CreateContextNssFlags = CreateContextNssFlags(32);
-    pub const MANAGE_HISTORY: CreateContextNssFlags = CreateContextNssFlags(64);
-    #[doc = "< A bit indicating that the pre-process shader should run as a fragment job when supported."]
-    pub const PRE_PROCESS_FRAGMENT: CreateContextNssFlags = CreateContextNssFlags(128);
-    #[doc = "< A bit indicating that the post-process shader should run as a fragment job when supported."]
-    pub const POST_PROCESS_FRAGMENT: CreateContextNssFlags = CreateContextNssFlags(256);
+    pub const ALLOW_16BIT: CreateContextNssFlags = CreateContextNssFlags(64);
+    #[doc = "< A bit indicating that the runtime should check some API values and report issues."]
+    pub const ENABLE_DEBUG_CHECKING: CreateContextNssFlags = CreateContextNssFlags(128);
 }
 impl ::std::ops::BitOr<CreateContextNssFlags> for CreateContextNssFlags {
     type Output = Self;
@@ -68,8 +66,8 @@ impl ::std::ops::BitAndAssign for CreateContextNssFlags {
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub struct CreateContextNssFlags(pub ::std::os::raw::c_uint);
 impl DispatchNssFlags {
-    pub const ENABLE_DEBUG_CHECKING: DispatchNssFlags = DispatchNssFlags(1);
-    pub const DRAW_DEBUG_VIEW: DispatchNssFlags = DispatchNssFlags(2);
+    #[doc = "< A bit indicating that the output resource will contain debug views with relevant information."]
+    pub const DRAW_DEBUG_VIEW: DispatchNssFlags = DispatchNssFlags(1);
 }
 impl ::std::ops::BitOr<DispatchNssFlags> for DispatchNssFlags {
     type Output = Self;
@@ -139,8 +137,6 @@ pub struct DispatchDescNss {
     pub motionVectors: Resource,
     #[doc = "< A <c><i>FfxResource</i></c> containing the output color buffer for the current frame (at presentation resolution)."]
     pub output: Resource,
-    #[doc = "< A <c><i>FfxResource</i></c> containing the output color buffer for the previous frame (at presentation resolution). Ignored when FFX_API_NSS_CONTEXT_FLAG_MANAGE_HISTORY is set; required otherwise. The caller is responsible for ping-ponging: pass frame N's output as frame N+1's outputTm1."]
-    pub outputTm1: Resource,
     #[doc = "< The subpixel jitter offset applied to the camera."]
     pub jitterOffset: FloatCoords2D,
     #[doc = "< The resolution that was used for rendering the output resources."]
@@ -161,12 +157,8 @@ pub struct DispatchDescNss {
     pub frameTimeDelta: f32,
     #[doc = "< A boolean value which when set to true, indicates the camera has moved discontinuously."]
     pub reset: bool,
-    #[doc = "< A combination of <c><i>FfxApiDispatchNssFlags</i></c>."]
+    #[doc = "< Zero or a combination of values from FfxApiDispatchNssFlags."]
     pub flags: u32,
-    #[doc = "< Output resource for debug views. Required when FFX_API_NSS_DISPATCH_FLAG_DRAW_DEBUG_VIEW is set."]
-    pub debugViews: Resource,
-    #[doc = "< Debug view display mode. 0 = all tiles (4x4 grid); 1-16 = single tile fullscreen."]
-    pub debugViewMode: u32,
 }
 impl Default for DispatchDescNss {
     fn default() -> Self {
@@ -203,7 +195,7 @@ pub struct QueryDescNssGetJitterOffset {
     pub header: QueryDescHeader,
     #[doc = "< The index within the jitter sequence."]
     pub index: i32,
-    #[doc = "< The length of jitter phase. See <c><i>ffxApiQueryDescNssGetJitterPhaseCount</i></c>."]
+    #[doc = "< The length of jitter phase. See <c><i>ffxQueryDescFsrGetJitterPhaseCount</i></c>."]
     pub phaseCount: i32,
     #[doc = "< A pointer to a <c>float</c> which will contain the subpixel jitter offset for the x dimension."]
     pub pOutX: *mut f32,
@@ -211,24 +203,6 @@ pub struct QueryDescNssGetJitterOffset {
     pub pOutY: *mut f32,
 }
 impl Default for QueryDescNssGetJitterOffset {
-    fn default() -> Self {
-        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
-        unsafe {
-            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
-            s.assume_init()
-        }
-    }
-}
-#[doc = " @ingroup ffxNss"]
-#[repr(C)]
-pub struct QueryDescNssGetPipelineStageInfo {
-    pub header: QueryDescHeader,
-    #[doc = "< A pointer to a <c>bool</c> which will be set to true if the pre-process stage runs as a fragment job. May be null."]
-    pub pOutPreProcessUsesFragment: *mut bool,
-    #[doc = "< A pointer to a <c>bool</c> which will be set to true if the post-process stage runs as a fragment job. May be null."]
-    pub pOutPostProcessUsesFragment: *mut bool,
-}
-impl Default for QueryDescNssGetPipelineStageInfo {
     fn default() -> Self {
         let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
         unsafe {
@@ -270,16 +244,6 @@ unsafe impl TaggedStructure for QueryDescNssGetJitterPhaseCount {
 
 unsafe impl TaggedStructure for QueryDescNssGetJitterOffset {
     const TAG: StructType_t = QUERY_DESC_TYPE_NSS_GETJITTEROFFSET;
-    fn header(&self) -> &Header {
-        &self.header
-    }
-    fn header_mut(&mut self) -> &mut Header {
-        &mut self.header
-    }
-}
-
-unsafe impl TaggedStructure for QueryDescNssGetPipelineStageInfo {
-    const TAG: StructType_t = QUERY_DESC_TYPE_NSS_GETPIPELINESTAGEINFO;
     fn header(&self) -> &Header {
         &self.header
     }

@@ -188,7 +188,7 @@ pub struct DispatchDescUpscale {
     pub motionVectorScale: FloatCoords2D,
     #[doc = "< The resolution that was used for rendering the input resources."]
     pub renderSize: Dimensions2D,
-    #[doc = "< The resolution that the upscaler will upscale to."]
+    #[doc = "< The resolution that the upscaler will upscale to (optional, assumed maxUpscaleSize otherwise)."]
     pub upscaleSize: Dimensions2D,
     #[doc = "< Enable an additional sharpening pass."]
     pub enableSharpening: bool,

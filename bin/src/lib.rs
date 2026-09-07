@@ -8,7 +8,6 @@ const BIN_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/prebuilt_binaries");
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Platform {
     X64Windows,
-    X64Linux,
     Aarch64Android,
 }
 
@@ -25,8 +24,11 @@ impl Platform {
             .expect("CARGO_CFG_TARGET_OS not set (are you in a build script?)");
         Some(match (arch.as_str(), os.as_str()) {
             ("x86_64", "windows") => Self::X64Windows, // TODO: Assert MSVC?
-            ("x86_64", "linux") => Self::X64Linux,     // TODO: Assert GNU?
-            ("aarch64", "android") => Self::Aarch64Android,
+            // No Linux x64 or Android library is checked in for SDK v1.0.1: it publishes no
+            // prebuilt Linux x64 library at all (that landed in v1.1.0), and its in-tree Android
+            // library is a 110MB unstripped build that exceeds GitHub's file size limit.  Both
+            // would have to be built from source to come back here, so report the target as
+            // unsupported rather than handing out a path to a file that does not exist.
             _ => return None,
         })
     }
@@ -54,7 +56,6 @@ pub fn path(platform: Platform) -> PathBuf {
 
     let filename = match platform {
         Platform::X64Windows => "ngsdk_windows_x64.dll",
-        Platform::X64Linux => "libngsdk_linux_x64.so",
         Platform::Aarch64Android => "libngsdk_android_arm.so",
     };
 

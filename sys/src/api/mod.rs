@@ -1,6 +1,6 @@
-//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/arm/neural-graphics-sdk-for-game-engines/blob/v1.1.0/ffx-api>.
+//! Bindings to the new `ffx-api` abstraction, generated from <https://github.com/arm/neural-graphics-sdk-for-game-engines/blob/v1.0.1/ffx-api>.
 //!
-//! See <https://github.com/arm/neural-graphics-sdk-for-game-engines/blob/v1.1.0/docs/user_guide.md> for details on how to use this new API.
+//! See <https://github.com/arm/neural-graphics-sdk-for-game-engines/blob/v1.0.1/docs/user_guide.md> for details on how to use this new API.
 
 #![allow(
     non_upper_case_globals,
@@ -10,6 +10,16 @@
 )]
 
 use std::ffi::c_void;
+
+/// Re-exported for consumers implementing [`Message`], whose width is target-specific.
+pub use libc::wchar_t;
+
+/// Callback receiving messages from the runtime, as wide (`wchar_t`) strings.
+///
+/// Hand-written because `wchar_t` is 32 bits wide on Linux/Android but 16 bits on MSVC, which
+/// bindgen would resolve for the host generating these checked-in bindings rather than the target
+/// compiling them.
+pub type Message = ::std::option::Option<unsafe extern "C" fn(type_: u32, message: *const wchar_t)>;
 
 mod return_code;
 
@@ -70,12 +80,6 @@ pub mod upscale {
     use super::*;
 
     include!("upscale_bindings.rs");
-}
-
-pub mod framegeneration {
-    use super::*;
-
-    include!("framegeneration_bindings.rs");
 }
 
 #[cfg(feature = "vulkan")]

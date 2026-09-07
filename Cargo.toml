@@ -14,7 +14,7 @@ keywords = ["arm", "neural-graphics", "upscaling", "nss", "vulkan"]
 license = "MIT"
 repository = "https://github.com/Traverse-Research/arm-neural-graphisc-rs"
 rust-version = "1.74"
-version = "0.1.0+v1.1.0"
+version = "0.1.0+v1.0.1"
 
 [patch.crates-io]
 # Latest Vulkan 1.4.352 bindings:

@@ -208,7 +208,6 @@ fn generate_api_bindings(api_dir: &Path, vk_include_dir: &Path) {
     generate_api_root_bindings(api_dir);
     generate_upscale_bindings(api_dir);
     generate_nss_bindings(api_dir);
-    generate_framegeneration_bindings(api_dir);
     generate_vk_backend_bindings(api_dir, vk_include_dir);
 }
 
@@ -227,6 +226,11 @@ fn generate_api_root_bindings(api_dir: &Path) {
         .allowlist_var("FFX\\w+")
         // Hand-written to debug-print ErrorCode with defined ErrorCodes
         .blocklist_type("ffxReturnCode_t")
+        // Hand-written against `libc::wchar_t`: this callback takes a `wchar_t*`, and in C++
+        // `wchar_t` is a builtin type that bindgen resolves to a fixed-width integer for the host
+        // it generates on (32 bits on Linux/Android, 16 bits on MSVC).  These bindings are checked
+        // in, so the width has to be picked for the target instead of the generating host.
+        .blocklist_type("ffxApiMessage")
         .bitfield_enum("FfxApiResourceUsage")
         .bitfield_enum("FfxApiResourceState")
         .bitfield_enum("FfxApiResourceFlags")
@@ -280,27 +284,6 @@ fn generate_nss_bindings(api_dir: &Path) {
         .expect("Unable to generate bindings");
 
     let mut out = File::create("sys/src/api/nss_bindings.rs").unwrap();
-    bindings
-        .write(Box::new(&mut out))
-        .expect("Couldn't write bindings!");
-    out.write_fmt(format_args!("{}", custom_code.borrow()))
-        .unwrap();
-}
-
-fn generate_framegeneration_bindings(api_dir: &Path) {
-    let wrapper = api_dir.join("include/ffx_api/ffx_framegeneration.h");
-
-    let (builder, custom_code) = bindgen_no_dynamic_library();
-    let bindings = builder
-        .header(wrapper.to_string_lossy())
-        .allowlist_file(escape_regex_file_path(&wrapper))
-        .bitfield_enum("FfxApiCreateContextFramegenerationFlags")
-        .bitfield_enum("FfxApiDispatchFramegenerationFlags")
-        // .bitfield_enum("FfxApiUiCompositionFlags")
-        .generate()
-        .expect("Unable to generate bindings");
-
-    let mut out = File::create("sys/src/api/framegeneration_bindings.rs").unwrap();
     bindings
         .write(Box::new(&mut out))
         .expect("Couldn't write bindings!");
