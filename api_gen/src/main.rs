@@ -59,6 +59,7 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                 }
                 "FfxApiCreateContextFramegenerationFlags" => "FFX_API_FG_CONTEXT_FLAG".to_owned(),
                 "FfxApiDispatchFramegenerationFlags" => "FFX_API_FG_DISPATCH_FLAG".to_owned(),
+                "FfxApiCaptureOperation" => "FFX_API_CAPTURE".to_owned(),
                 "FfxApiConfigureFrameGenerationSwapChainKeyVK" => {
                     "FFX_API_CONFIGURE_FG_SWAPCHAIN_KEY".to_owned()
                 }
@@ -133,11 +134,15 @@ impl bindgen::callbacks::ParseCallbacks for Renamer {
                     enum_name.replace("GET_PIPELINE_STAGE_INFO", "GETPIPELINESTAGEINFO");
                 let enum_name = enum_name.replace("GENERATE_REACTIVE_MASK", "GENERATEREACTIVEMASK");
                 let enum_name = enum_name.replace("GET_GPU_MEMORY_USAGE", "GPU_MEMORY_USAGE");
+                let enum_name = enum_name.replace("GET_CPU_MEMORY_USAGE", "CPU_MEMORY_USAGE");
+                let enum_name = enum_name.replace("FRAMEGENERATION_GPU_MEMORY", "FG_GPU_MEMORY");
+                let enum_name = enum_name.replace("FRAMEGENERATION_CPU_MEMORY", "FG_CPU_MEMORY");
                 let enum_name = enum_name.replace(
                     "REGISTER_DISTORTION_FIELD_RESOURCE",
                     "REGISTERDISTORTIONRESOURCE",
                 );
                 let enum_name = enum_name.replace("CAMERA_INFO", "CAMERAINFO");
+                let enum_name = enum_name.replace("CAPTURE_STATUS", "CAPTURESTATUS");
                 let enum_name =
                     enum_name.replace("INTERPOLATION_COMMAND_LIST", "INTERPOLATIONCOMMANDLIST");
                 let mut enum_name =
