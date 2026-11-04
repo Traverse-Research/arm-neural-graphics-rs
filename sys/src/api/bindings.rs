@@ -7,6 +7,8 @@ pub const CONFIGURE_GLOBALDEBUG_LEVEL_ERRORS: u32 = 1;
 pub const CONFIGURE_GLOBALDEBUG_LEVEL_WARNINGS: u32 = 2;
 pub const CONFIGURE_GLOBALDEBUG_LEVEL_VERBOSE: u32 = 268435455;
 pub const CONFIGURE_DESC_TYPE_GLOBALDEBUG1: StructType_t = 1;
+pub const CONFIGURE_DESC_TYPE_CAPTURE: StructType_t = 6;
+pub const QUERY_DESC_TYPE_CAPTURESTATUS: StructType_t = 7;
 pub const QUERY_DESC_TYPE_GET_VERSIONS: StructType_t = 4;
 pub const DESC_TYPE_OVERRIDE_VERSION: StructType_t = 5;
 impl ReturnCodes {
@@ -44,7 +46,8 @@ pub type DispatchDescHeader = Header;
 impl MsgType {
     pub const ERROR: MsgType = MsgType(0);
     pub const WARNING: MsgType = MsgType(1);
-    pub const COUNT: MsgType = MsgType(2);
+    pub const INFO: MsgType = MsgType(2);
+    pub const COUNT: MsgType = MsgType(3);
 }
 #[repr(transparent)]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -57,6 +60,86 @@ pub struct ConfigureDescGlobalDebug1 {
     pub header: ConfigureDescHeader,
     pub fpMessage: Message,
     pub debugLevel: u32,
+}
+#[repr(u32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum CaptureOperation {
+    #[doc = "< Queue a capture using the descriptor settings."]
+    BEGIN = 0,
+    #[doc = "< Stop an active capture early and cancel its incomplete transaction."]
+    CANCEL = 2,
+}
+#[repr(u32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum CapturePhase {
+    IDLE = 0,
+    CAPTURING = 1,
+    DRAINING = 2,
+}
+#[repr(u32)]
+#[non_exhaustive]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum CaptureResult {
+    NONE = 0,
+    SUCCESS = 1,
+    FAILED = 2,
+    CANCELLED = 3,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct ConfigureDescCapture {
+    pub header: ConfigureDescHeader,
+    #[doc = "< One of FfxApiCaptureOperation."]
+    pub operation: u32,
+    #[doc = "< BEGIN only: non-null, NUL-terminated output root of at most 512 bytes; copied before ffxConfigure returns. Longer values return FFX_API_RETURN_ERROR_PARAMETER. For a valid descriptor, BEGIN is accepted for an idle context even without environment/property configuration; state-based rejection applies when an API BEGIN is already pending or the context is capturing or draining. Invalid descriptor values return FFX_API_RETURN_ERROR_PARAMETER."]
+    pub outputDirectory: *const ::std::os::raw::c_char,
+    #[doc = "< First component dispatch eligible for capture."]
+    pub startDispatch: u32,
+    #[doc = "< Maximum number of frames to request; capture may stop earlier on budget or runtime failure."]
+    pub frameCount: u32,
+    #[doc = "< Finite motion-vector conversion bias; use 0.5 for R8G8_UNORM inputs."]
+    pub motionVectorUnormBias: f32,
+    #[doc = "< Finite non-zero scale whose bias-adjusted R8G8_UNORM result remains finite; use 2.0 for R8G8_UNORM inputs."]
+    pub motionVectorUnormScale: f32,
+}
+impl Default for ConfigureDescCapture {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
+}
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct CaptureStatus {
+    #[doc = "< One of FfxApiCapturePhase: IDLE, CAPTURING, or DRAINING."]
+    pub phase: u32,
+    #[doc = "< One of FfxApiCaptureResult; FAILED is retained after asynchronous failure."]
+    pub result: u32,
+    #[doc = "< Frames submitted for asynchronous readback; later payload/I/O failure is reported in result."]
+    pub capturedFrames: u32,
+    #[doc = "< Requested frame count for the active or most recent capture."]
+    pub requestedFrames: u32,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct QueryDescCaptureStatus {
+    pub header: QueryDescHeader,
+    #[doc = "< Non-null output storage written synchronously by ffxQuery."]
+    pub pOutStatus: *mut CaptureStatus,
+}
+impl Default for QueryDescCaptureStatus {
+    fn default() -> Self {
+        let mut s = ::std::mem::MaybeUninit::<Self>::uninit();
+        unsafe {
+            ::std::ptr::write_bytes(s.as_mut_ptr(), 0, 1);
+            s.assume_init()
+        }
+    }
 }
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -425,10 +508,6 @@ pub struct ResourceDescription {
     pub flags: u32,
     #[doc = "< Resource usage flags."]
     pub usage: u32,
-    #[doc = "< Only used by tensor resource."]
-    pub batchSize: u32,
-    #[doc = "< Only used by tensor resource."]
-    pub shapeSize: u32,
 }
 #[repr(C)]
 #[derive(Copy, Clone)]
@@ -512,7 +591,20 @@ impl Default for Resource {
 #[derive(Debug, Default, Copy, Clone)]
 pub struct EffectMemoryUsage {
     pub totalUsageInBytes: u64,
+    pub textureUsageInBytes: u64,
+    pub bufferUsageInBytes: u64,
+    pub tensorUsageInBytes: u64,
+    pub dataGraphUsageInBytes: u64,
     pub aliasableUsageInBytes: u64,
+}
+#[doc = " Requested CPU heap memory owned by an effect context.\n\n This includes the provider context and allocations made through its tracked\n allocator (currently backend scratch buffers). It excludes stack memory,\n STL container allocations, allocator bookkeeping, GPU driver allocations,\n and dynamic allocations internal to third-party libraries. The query is\n available when the SDK is built with\n <c>FFX_ENABLE_CPU_HEAP_TRACKING=ON</c>."]
+#[repr(C)]
+#[derive(Debug, Default, Copy, Clone)]
+pub struct EffectCpuMemoryUsage {
+    #[doc = "< Outstanding effect-owned CPU heap allocation size."]
+    pub currentUsageInBytes: u64,
+    #[doc = "< Maximum outstanding size since the effect context was created."]
+    pub peakUsageInBytes: u64,
 }
 #[repr(C)]
 #[derive(Debug, Default, Copy, Clone)]
@@ -608,6 +700,26 @@ impl Functions {
 
 unsafe impl TaggedStructure for ConfigureDescGlobalDebug1 {
     const TAG: StructType_t = CONFIGURE_DESC_TYPE_GLOBALDEBUG1;
+    fn header(&self) -> &Header {
+        &self.header
+    }
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for ConfigureDescCapture {
+    const TAG: StructType_t = CONFIGURE_DESC_TYPE_CAPTURE;
+    fn header(&self) -> &Header {
+        &self.header
+    }
+    fn header_mut(&mut self) -> &mut Header {
+        &mut self.header
+    }
+}
+
+unsafe impl TaggedStructure for QueryDescCaptureStatus {
+    const TAG: StructType_t = QUERY_DESC_TYPE_CAPTURESTATUS;
     fn header(&self) -> &Header {
         &self.header
     }
